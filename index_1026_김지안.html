@@ -732,9 +732,10 @@ function buildCards(){
             updProg();
           });
           cs.appendChild(ci);
-          // 메모 폼+뷰는 ci 밖 cs에 붙이기 (일반 task와 동일한 구조)
+          // 메모 폼+뷰는 ci 밖 cs에 붙이기 — wrap 없이 form/view 직접 붙이기
           var cMemoWrap=makeMemoHtml(tid);
-          cs.appendChild(cMemoWrap);
+          // wrap 안의 자식들을 직접 cs에 붙이기
+          while(cMemoWrap.firstChild){ cs.appendChild(cMemoWrap.firstChild); }
         })(taskId, citem, {ccb:ccb, ctb:ctb});
       });
       body.appendChild(cs);
