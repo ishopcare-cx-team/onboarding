@@ -125,9 +125,10 @@ section{margin-bottom:28px}
 .carry-done .carry-cb::after{content:'';width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
 .carry-done .carry-label{text-decoration:line-through;color:var(--t3)}
 .carry-done .tlinks{display:none}
-.memo-btn{flex-shrink:0;padding:2px 8px;border-radius:6px;border:0.5px solid var(--bor);background:transparent;cursor:pointer;font-size:10px;font-weight:500;color:var(--t3);margin-top:2px;white-space:nowrap;transition:.15s;font-family:inherit}
-.memo-btn:hover{border-color:var(--brand);color:var(--brand)}
-.memo-btn.has-memo{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+.memo-btn{flex-shrink:0;padding:3px 9px;border-radius:6px;border:1px solid var(--bor);background:transparent;cursor:pointer;font-size:10px;font-weight:600;color:var(--t3);margin-top:2px;white-space:nowrap;transition:.2s;font-family:inherit}
+.memo-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-l)}
+.memo-btn.has-memo{border-color:#6ee7b7;background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;font-weight:700;box-shadow:0 0 0 2px rgba(16,185,129,.15);animation:memoPulse 2s ease-in-out infinite}
+@keyframes memoPulse{0%,100%{box-shadow:0 0 0 2px rgba(16,185,129,.15)}50%{box-shadow:0 0 0 4px rgba(16,185,129,.3),0 0 8px rgba(16,185,129,.2)}}
 .memo-form{display:none;padding:4px 0 6px 25px}
 .memo-form.open{display:block}
 .memo-ta{width:100%;border:1px solid var(--bor);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;resize:none;outline:none;background:var(--sur2);min-height:56px;overflow:hidden;line-height:1.6;color:var(--t1);transition:.15s}
@@ -707,7 +708,7 @@ function buildCards(){
         var cmb = document.createElement('button');
         cmb.className='memo-btn'+(cMemoHas?' has-memo':'');
         cmb.id='mb-'+taskId;
-        cmb.textContent=cMemoHas?'메모 ✓':'메모';
+        cmb.textContent=cMemoHas?'📌 메모를 확인해주세요':'메모';
         cmb.onclick=function(e){ e.stopPropagation(); clickMemoBtn(taskId); };
 
         var cxbtn=document.createElement('button');
@@ -718,6 +719,13 @@ function buildCards(){
 
         citem.addEventListener('click',function(e){
           if(e.target.classList.contains('tlink')) return;
+          if(e.target.classList.contains('memo-btn')) return;
+          if(e.target.classList.contains('memo-save')) return;
+          if(e.target.classList.contains('memo-cancel')) return;
+          if(e.target.classList.contains('memo-edit')) return;
+          if(e.target.classList.contains('memo-ta')) return;
+          if(e.target.closest('.memo-form')) return;
+          if(e.target.closest('.memo-view')) return;
           var nw=!appData.checks[taskId];
           appData.checks[taskId]=nw;
           citem.classList.toggle('carry-done',nw);
@@ -911,7 +919,7 @@ function buildCards(){
       var memobtn = document.createElement('button');
       memobtn.className='memo-btn'+(memoHasData?' has-memo':'');
       memobtn.id='mb-'+taskId;
-      memobtn.textContent=memoHasData?'메모 ✓':'메모';
+      memobtn.textContent=memoHasData?'📌 메모를 확인해주세요':'메모';
       memobtn.onclick=function(e){ e.stopPropagation(); clickMemoBtn(taskId); };
 
       item.appendChild(tcb); item.appendChild(tb); item.appendChild(memobtn);
@@ -1058,7 +1066,7 @@ function saveMemoBtn(taskId){
   if(!ta || !ta.value.trim()){ toast('메모 내용을 입력해주세요','err'); return; }
   memoData[taskId] = {text: ta.value.trim(), visible: false};
   saveMemoStore();
-  if(btn){ btn.textContent='메모 ✓'; btn.classList.add('has-memo'); }
+  if(btn){ btn.textContent='📌 메모를 확인해주세요'; btn.classList.add('has-memo'); }
   if(view){
     view.classList.remove('open');
     var bubble = document.createElement('div');
@@ -1099,7 +1107,7 @@ function deleteMemoBtn(taskId){
   delete memoData[taskId];
   saveMemoStore();
   var btn=document.getElementById('mb-'+taskId);
-  if(btn){ btn.textContent='메모'; btn.classList.remove('has-memo'); }
+  if(btn){ btn.textContent='메모'; btn.classList.remove('has-memo'); btn.style.animation=''; }
   var view=document.getElementById('mv-'+taskId);
   if(view){ view.classList.remove('open'); view.innerHTML=''; }
   var form=document.getElementById('mf-'+taskId);
