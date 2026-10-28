@@ -120,7 +120,6 @@ section{margin-bottom:28px}
 .carry-item{display:flex;align-items:flex-start;flex-wrap:wrap;gap:9px;padding:7px 8px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,.7);margin-bottom:4px}
 .carry-item:last-child{margin-bottom:0}
 .carry-item:hover{background:rgba(255,255,255,.9)}
-.carry-item .memo-form,.carry-item .memo-view{flex-basis:100%;margin-left:0;padding-left:18px}
 .carry-cb{width:16px;height:16px;border-radius:4px;border:1.5px solid #fca5a5;flex-shrink:0;margin-top:2px;background:#fef2f2;display:flex;align-items:center;justify-content:center;transition:.15s}
 .carry-done .carry-cb{background:#10b981;border-color:#10b981}
 .carry-done .carry-cb::after{content:'';width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
@@ -719,17 +718,9 @@ function buildCards(){
           cxbtn.onclick=function(e){ e.stopPropagation(); removeCarry(day, tid); };
           ci.appendChild(cib.ccb); ci.appendChild(cib.ctb); ci.appendChild(cmb); ci.appendChild(cxbtn);
 
-          // 메모 폼+뷰를 citem 안에 넣기
-          var cMemoWrap=makeMemoHtml(tid);
-          ci.appendChild(cMemoWrap);
-
           ci.addEventListener('click',function(e){
-            if(e.target.closest('.tlink')) return;
-            if(e.target.closest('.memo-btn')) return;
-            if(e.target.closest('.memo-save')) return;
-            if(e.target.closest('.memo-cancel')) return;
-            if(e.target.closest('.memo-edit')) return;
-            if(e.target.closest('.memo-ta')) return;
+            if(e.target.tagName==='BUTTON') return;
+            if(e.target.classList.contains('tlink')) return;
             if(e.target.closest('.memo-form')) return;
             if(e.target.closest('.memo-view')) return;
             var nw=!appData.checks[tid];
@@ -741,6 +732,9 @@ function buildCards(){
             updProg();
           });
           cs.appendChild(ci);
+          // 메모 폼+뷰는 ci 밖 cs에 붙이기 (일반 task와 동일한 구조)
+          var cMemoWrap=makeMemoHtml(tid);
+          cs.appendChild(cMemoWrap);
         })(taskId, citem, {ccb:ccb, ctb:ctb});
       });
       body.appendChild(cs);
