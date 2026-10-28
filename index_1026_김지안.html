@@ -117,9 +117,10 @@ section{margin-bottom:28px}
 .carry-btn:disabled{opacity:.6;cursor:default}
 .carry-section{background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
 .carry-section-title{font-size:11.5px;font-weight:700;color:#b91c1c;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.carry-item{display:flex;align-items:flex-start;gap:9px;padding:7px 8px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,.7);margin-bottom:4px}
+.carry-item{display:flex;align-items:flex-start;flex-wrap:wrap;gap:9px;padding:7px 8px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,.7);margin-bottom:4px}
 .carry-item:last-child{margin-bottom:0}
 .carry-item:hover{background:rgba(255,255,255,.9)}
+.carry-item .memo-form,.carry-item .memo-view{flex-basis:100%;margin-left:0;padding-left:18px}
 .carry-cb{width:16px;height:16px;border-radius:4px;border:1.5px solid #fca5a5;flex-shrink:0;margin-top:2px;background:#fef2f2;display:flex;align-items:center;justify-content:center;transition:.15s}
 .carry-done .carry-cb{background:#10b981;border-color:#10b981}
 .carry-done .carry-cb::after{content:'';width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
@@ -705,39 +706,42 @@ function buildCards(){
         ctb.appendChild(ctt); ctb.appendChild(clbl);
         if(linkHtml){ var tmp=document.createElement('div'); tmp.innerHTML=linkHtml; ctb.appendChild(tmp.firstChild); }
 
-        var cmb = document.createElement('button');
-        cmb.className='memo-btn'+(cMemoHas?' has-memo':'');
-        cmb.id='mb-'+taskId;
-        cmb.textContent=cMemoHas?'📌 메모를 확인해주세요':'메모';
-        cmb.onclick=function(e){ e.stopPropagation(); clickMemoBtn(taskId); };
+        (function(tid, ci, cib){
+          var cmb = document.createElement('button');
+          cmb.className='memo-btn'+(cMemoHas?' has-memo':'');
+          cmb.id='mb-'+tid;
+          cmb.textContent=cMemoHas?'📌 메모를 확인해주세요':'메모';
+          cmb.onclick=function(e){ e.stopPropagation(); clickMemoBtn(tid); };
 
-        var cxbtn=document.createElement('button');
-        cxbtn.style.cssText='flex-shrink:0;padding:1px 6px;border-radius:5px;border:0.5px solid #fca5a5;background:transparent;cursor:pointer;font-size:9px;color:#ef4444;margin-top:2px;margin-left:4px';
-        cxbtn.textContent='원복';
-        (function(d, tid){ cxbtn.onclick=function(e){ e.stopPropagation(); removeCarry(day, tid); }; })(day, taskId);
-        citem.appendChild(ccb); citem.appendChild(ctb); citem.appendChild(cmb); citem.appendChild(cxbtn);
+          var cxbtn=document.createElement('button');
+          cxbtn.style.cssText='flex-shrink:0;padding:1px 6px;border-radius:5px;border:0.5px solid #fca5a5;background:transparent;cursor:pointer;font-size:9px;color:#ef4444;margin-top:2px;margin-left:4px';
+          cxbtn.textContent='원복';
+          cxbtn.onclick=function(e){ e.stopPropagation(); removeCarry(day, tid); };
+          ci.appendChild(cib.ccb); ci.appendChild(cib.ctb); ci.appendChild(cmb); ci.appendChild(cxbtn);
 
-        citem.addEventListener('click',function(e){
-          if(e.target.classList.contains('tlink')) return;
-          if(e.target.classList.contains('memo-btn')) return;
-          if(e.target.classList.contains('memo-save')) return;
-          if(e.target.classList.contains('memo-cancel')) return;
-          if(e.target.classList.contains('memo-edit')) return;
-          if(e.target.classList.contains('memo-ta')) return;
-          if(e.target.closest('.memo-form')) return;
-          if(e.target.closest('.memo-view')) return;
-          var nw=!appData.checks[taskId];
-          appData.checks[taskId]=nw;
-          citem.classList.toggle('carry-done',nw);
-          var ld=citem.querySelector('.carry-links');
-          if(ld) ld.style.display=nw?'none':'flex';
-          pushCheck(taskId,nw);
-          updProg();
-        });
-        cs.appendChild(citem);
-        // 메모 폼+뷰
-        var cMemoWrap=makeMemoHtml(taskId);
-        cs.appendChild(cMemoWrap);
+          // 메모 폼+뷰를 citem 안에 넣기
+          var cMemoWrap=makeMemoHtml(tid);
+          ci.appendChild(cMemoWrap);
+
+          ci.addEventListener('click',function(e){
+            if(e.target.classList.contains('tlink')) return;
+            if(e.target.classList.contains('memo-btn')) return;
+            if(e.target.classList.contains('memo-save')) return;
+            if(e.target.classList.contains('memo-cancel')) return;
+            if(e.target.classList.contains('memo-edit')) return;
+            if(e.target.classList.contains('memo-ta')) return;
+            if(e.target.closest('.memo-form')) return;
+            if(e.target.closest('.memo-view')) return;
+            var nw=!appData.checks[tid];
+            appData.checks[tid]=nw;
+            ci.classList.toggle('carry-done',nw);
+            var ld=ci.querySelector('.carry-links');
+            if(ld) ld.style.display=nw?'none':'flex';
+            pushCheck(tid,nw);
+            updProg();
+          });
+          cs.appendChild(ci);
+        })(taskId, citem, {ccb:ccb, ctb:ctb});
       });
       body.appendChild(cs);
     }
