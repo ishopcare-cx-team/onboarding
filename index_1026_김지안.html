@@ -764,7 +764,7 @@ function buildCards(){
               var unfinished=dt.filter(function(t){
                 return t['구분']==='task' && !appData.checks[makeTaskId(t,appData.tasks.indexOf(t))];
               });
-              var carryUnfinished=carryUnfinishedCheck;
+              var carryUnfinished=(carryOver[day]||[]).filter(function(c){ return !appData.checks[c.taskId]; });
               if(!unfinished.length && !carryUnfinished.length){ toast('모든 항목이 완료됐어요!','ok'); return; }
               if(!carryOver[nextDay]) carryOver[nextDay]=[];
               unfinished.forEach(function(t){
@@ -1221,10 +1221,18 @@ setInterval(function(){
       if(data.checks){
         appData.checks=data.checks;
         document.querySelectorAll('[data-taskid]').forEach(function(el){
-          var isChk=!!appData.checks[el.dataset.taskid];
-          el.classList.toggle('ck',isChk);
+          var tid=el.dataset.taskid;
+          var isChk=!!appData.checks[tid];
+          // carry-item은 carry-done 클래스, 일반 task item은 ck 클래스
+          if(el.classList.contains('carry-item')){
+            el.classList.toggle('carry-done',isChk);
+          } else {
+            el.classList.toggle('ck',isChk);
+          }
           var ld=el.querySelector('.tlinks');
           if(ld) ld.style.display=isChk?'none':'flex';
+          var cl=el.querySelector('.carry-links');
+          if(cl) cl.style.display=isChk?'none':'flex';
         });
         updProg();
       }
