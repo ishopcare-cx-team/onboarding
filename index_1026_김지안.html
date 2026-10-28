@@ -368,7 +368,7 @@ function getWorkdays(startStr, count){
   }
   return days;
 }
-function makeTaskId(t, i){ return (t['일차']||'')+'_'+(t['순서']||i); }
+function makeTaskId(t, i){ return (t['일차']||'')+'_'+(i !== undefined ? i : (t['순서']||'')); }
 
 function sw(id){
   document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('on', ['ov','cl','lb','fb'][i]===id); });
@@ -1171,7 +1171,22 @@ function makeMemoHtml(taskId){
 
 function togDay(id){
   var card=document.getElementById(id);
-  if(card) card.classList.toggle('col');
+  if(!card) return;
+  card.classList.toggle('col');
+  // localStorage에 접힌 상태 저장
+  var collapsed = {};
+  try{ collapsed = JSON.parse(localStorage.getItem('cx_collapsed_'+URL_NAME)||'{}'); }catch(e){}
+  collapsed[id] = card.classList.contains('col');
+  try{ localStorage.setItem('cx_collapsed_'+URL_NAME, JSON.stringify(collapsed)); }catch(e){}
+}
+
+function restoreCollapsed(){
+  var collapsed = {};
+  try{ collapsed = JSON.parse(localStorage.getItem('cx_collapsed_'+URL_NAME)||'{}'); }catch(e){}
+  Object.keys(collapsed).forEach(function(id){
+    var card = document.getElementById(id);
+    if(card) card.classList.toggle('col', !!collapsed[id]);
+  });
 }
 
 function buildLib(){
@@ -1208,6 +1223,7 @@ function renderAll(){
   buildNav();
   buildCalendar();
   buildCards();
+  restoreCollapsed();
   buildLib();
   updProg();
 }
